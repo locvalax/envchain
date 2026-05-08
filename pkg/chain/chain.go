@@ -76,3 +76,11 @@ func (c *Chain) Inject() error {
 	}
 	return nil
 }
+
+// Sources returns a copy of the slice of sources currently registered in the
+// chain. The returned slice is safe to iterate without affecting the chain.
+func (c *Chain) Sources() []*Source {
+	result := make([]*Source, len(c.sources))
+	copy(result, c.sources)
+	return result
+}
