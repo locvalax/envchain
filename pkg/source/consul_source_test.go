@@ -75,6 +75,15 @@ func TestConsulSource_Keys(t *testing.T) {
 	}
 }
 
+func TestConsulSource_KeysClientError(t *testing.T) {
+	client := &mockConsulClient{err: errors.New("timeout")}
+	src := NewConsulSource(context.Background(), client, "app")
+	_, err := src.Keys()
+	if err == nil {
+		t.Fatal("expected error from Keys(), got nil")
+	}
+}
+
 func TestConsulSource_NoPrefix(t *testing.T) {
 	client := &mockConsulClient{data: map[string]string{"API_KEY": "secret"}}
 	src := NewConsulSource(context.Background(), client, "")
