@@ -3,6 +3,7 @@ package source
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
@@ -81,10 +82,10 @@ func (d *dynamoDBSource) Keys(ctx context.Context) ([]string, error) {
 		if !ok {
 			continue
 		}
-		if d.prefix != "" && len(s.Value) >= len(d.prefix) && s.Value[:len(d.prefix)] == d.prefix {
-			keys = append(keys, s.Value[len(d.prefix):])
-		} else if d.prefix == "" {
+		if d.prefix == "" {
 			keys = append(keys, s.Value)
+		} else if trimmed, found := strings.CutPrefix(s.Value, d.prefix); found {
+			keys = append(keys, trimmed)
 		}
 	}
 	return keys, nil
