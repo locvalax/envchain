@@ -86,11 +86,14 @@ func (s *mongoDBSource) Keys(ctx context.Context) ([]string, error) {
 	for cursor.Next(ctx) {
 		var doc bson.M
 		if err := cursor.Decode(&doc); err != nil {
-			continue
+			return nil, fmt.Errorf("mongodb keys: decode document: %w", err)
 		}
 		if k, ok := doc[s.keyField].(string); ok {
 			keys = append(keys, k)
 		}
 	}
-	return keys, cursor.Err()
+	if err := cursor.Err(); err != nil {
+		return nil, fmt.Errorf("mongodb keys: cursor error: %w", err)
+	}
+	return keys, nil
 }
