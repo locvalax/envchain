@@ -67,12 +67,18 @@ func WithBigTableKnownKeys(keys []string) option {
 	return func(s *BigTableSource) { s.knownKeys = keys }
 }
 
+// rowKey returns the full Bigtable row key for the given logical key,
+// prepending the prefix if one is configured.
+func (s *BigTableSource) rowKey(key string) string {
+	if s.prefix != "" {
+		return s.prefix + key
+	}
+	return key
+}
+
 // Get retrieves the value for the given key from Bigtable.
 func (s *BigTableSource) Get(ctx context.Context, key string) (string, bool, error) {
-	rowKey := key
-	if s.prefix != "" {
-		rowKey = s.prefix + key
-	}
+	rowKey := s.rowKey(key)
 	row, err := s.client.ReadRow(ctx, s.table, rowKey)
 	if err != nil {
 		return "", false, fmt.Errorf("bigtable: read row %q: %w", rowKey, err)
